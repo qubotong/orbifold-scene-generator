@@ -2,7 +2,7 @@ from __future__ import print_function
 from lxml import etree
 from geometry import shapes
 import numpy as np
-import utils
+import scene_parsing.utils
 import copy
 
 

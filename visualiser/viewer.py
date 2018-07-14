@@ -1,9 +1,9 @@
 import sys
 from PyQt5 import QtCore, QtOpenGL, QtWidgets
 from PyQt5.QtWidgets import QWidget, QCheckBox, QApplication, QHBoxLayout,QMainWindow,QToolTip,QPushButton, QMessageBox,QAction,QTextEdit,QLabel, qApp
-import camera_control
-import gl_geometry
-from skybox import Skybox
+import visualiser.camera_control
+import visualiser.gl_geometry
+from visualiser.skybox import Skybox
 
 try:
     from OpenGL.GL import *

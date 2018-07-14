@@ -1,7 +1,7 @@
 import numpy as np
 # from multimethods import multimethod
 
-import utils
+import geometry.utils
 
 # TODO: Make this configurable
 EPSILON = 1e-12

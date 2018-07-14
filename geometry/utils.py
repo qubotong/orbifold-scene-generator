@@ -1,6 +1,6 @@
 import numpy as np
 
-import shapes
+import geometry.shapes
 
 
 EPSILON = 1e-12  # The margin of error used to test if vertices are co-planar
@@ -42,7 +42,7 @@ def axis_angle_rotation_matrix(axis, angle):
     """
     axis = np.asarray(axis)
     if np.dot(axis, axis) <= 0:
-        print axis
+        print (axis)
     axis = axis / np.sqrt(np.dot(axis, axis))
     a = np.cos(angle / 2.0)
     b, c, d = -axis * np.sin(angle / 2.0)
