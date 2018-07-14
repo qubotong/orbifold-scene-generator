@@ -10,7 +10,7 @@ import tiling
 import time
 from visualiser import gl_geometry
 from visualiser.viewer import Viewer
-
+from geometry import shapes, utils
 
 def init(viewer):
     viewer.camera_controller.set_dist_from_center(5000)
@@ -62,18 +62,46 @@ def init(viewer):
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color)
         gl_geometry.draw_solid_prism(t[0])
 
-        glDisable(GL_DEPTH_TEST)
-        glDisable(GL_LIGHTING)
-        glColor3f(1, 1, 1)
-        gl_geometry.draw_prism_normals(t[0], 100.0)
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_LIGHTING)
-
     glDisable(GL_DEPTH_TEST)
     glDisable(GL_LIGHTING)
+    glPopAttrib(GL_ENABLE_BIT)
+    glEndList()
+
+    global normal_display_list
+    normal_display_list = glGenLists(1)
+    glNewList(normal_display_list, GL_COMPILE)
+    glPushAttrib(GL_ENABLE_BIT)
+
+    for t in tilemap.values():
+        glColor3f(1, 1, 1)
+        gl_geometry.draw_prism_normals(t[0], 100.0)
+
+    glPopAttrib(GL_ENABLE_BIT)
+    glEndList()
+
+    global wire_display_list
+    wire_display_list = glGenLists(1)
+    glNewList(wire_display_list, GL_COMPILE)
+    glPushAttrib(GL_ENABLE_BIT)
+
     glColor3f(1, 1, 1)
     for t in tilemap.values():
         gl_geometry.draw_wire_prism(t[0])
+
+
+    glPopAttrib(GL_ENABLE_BIT)
+    glEndList()
+
+    global sample_display_list
+    sample_display_list = glGenLists(1)
+    glNewList(sample_display_list, GL_COMPILE)
+    glPushAttrib(GL_ENABLE_BIT)
+
+    for t in tilemap.values():
+        # tri = shapes.Triangle([230, 100, 50], [330, 100, 50], [280, 300, 150])
+        tri = shapes.Triangle([10, 100, 50], [110, 100, 50], [55, 300, 150])
+        tri.transform(t[1])
+        gl_geometry.draw_triangle(tri)
 
     glPopAttrib(GL_ENABLE_BIT)
     glEndList()
@@ -98,9 +126,19 @@ def draw(viewer):
     glPushAttrib(GL_ENABLE_BIT)
     glDisable(GL_DEPTH_TEST)
     glDisable(GL_LIGHTING)
-    gl_geometry.draw_axes((10000, 10000, 10000))
-    glColor3f(1, 1, 1)
-    gl_geometry.draw_wire_prism(frustum)
+
+    if gl_viewer.flag_normals:
+        glCallList(normal_display_list)
+
+    if gl_viewer.flag_wires:
+        glCallList(wire_display_list)
+
+    if gl_viewer.flag_Samples:
+        glCallList(sample_display_list)
+
+    if gl_viewer.flag_axes:
+        gl_geometry.draw_axes((10000, 10000, 10000))
+
     glPopAttrib(GL_ENABLE_BIT)
 
     glFinish()
@@ -114,6 +152,7 @@ def resize(viewer):
     glMatrixMode(GL_MODELVIEW)
 
 argparser = argparse.ArgumentParser()
+
 # argparser.add_argument("filename", help="The name of the scene file to render.", type=str)
 # argparser.add_argument("type", help="The type of the scene. Must be one of xx x2222 x442 x642 x333 or xN, "
 #                                     "where N is a positive integer.")
@@ -123,6 +162,18 @@ argparser = argparse.ArgumentParser()
 # argparser.add_argument("-v", "--visualize", help="Visualize the kernels we are going to draw", action="store_true")
 # argparser.add_argument("-b", "--bidir", help="Use bidirectional path tracing instead of path tracing for "
 #                                                  "incompleteness images", action="store_true")
+
+argparser.add_argument("filename", help="The name of the scene file to render.", type=str)
+argparser.add_argument("type", help="The type of the scene. Must be one of xx x2222 x442 x642 x333 or xN, "
+                                    "where N is a positive integer.")
+argparser.add_argument("radius", help="The kernel radius", type=int)
+argparser.add_argument("overlap", help="The amout that adjacent kernels overlap", type=int)
+argparser.add_argument("scale", help="args.scale factor for the scene.", type=float, default=560.0)
+argparser.add_argument("-v", "--visualize", help="Visualize the kernels we are going to draw", action="store_true")
+argparser.add_argument("-b", "--bidir", help="Use bidirectional path tracing instead of path tracing for "
+                                                 "incompleteness images", action="store_true")
+argparser.add_argument("-i", "--inc", help="output incompleteness scenes", action="store_true")
+
 args = argparser.parse_args()
 
 args.type = "xx"
@@ -180,10 +231,15 @@ else:
 # output_dir = os.path.realpath(output_dir)
 # os.mkdir(output_dir)
 
+split_paths = os.path.split(args.filename)
+print("Generating fds for scenes %s..." %split_paths[1])
+filename = os.path.splitext(split_paths[1])
+
 frustum = scene_parsing.make_frustum(args.filename)
 kt = tiling.KernelTiling(base_kernel, frustum, args.overlap)
 geometry_display_list = None
 
+<<<<<<< HEAD
 # print("Generating scene data...")
 # i = 0
 # for kernel in kt.visible_kernels:
@@ -197,6 +253,24 @@ geometry_display_list = None
 #     i += 1
 #
 # print("Saved scene data to %s" % output_dir)
+=======
+print("Generating scene data...")
+i = 0
+for kernel in kt.visible_kernels:
+
+    print("Generating the scene data for kernel %d ..." % i)
+    with etree.xmlfile(os.path.join(output_dir, "%s_img_%d_clr.xml" % (filename[0], i)), encoding='utf-8') as xf:
+        sp.gen_scene_xml_incremental(args.filename, list(kernel.fundamental_domain_transforms), xf)
+
+    if args.inc:
+        print("Generating the inc scene data for kernel %d ..." % i)
+        with etree.xmlfile(os.path.join(output_dir, "%s_inc_img_%d_clr.xml" % (filename[0], i)), encoding='utf-8') as xf:
+            sp.gen_incompleteness_xml_incremental(args.filename, list(kernel.fundamental_domain_transforms), xf,use_bidir=args.bidir, )
+
+    i += 1
+
+print("Saved scene data to %s" % output_dir)
+>>>>>>> e26a1af271a27f0b74f80e1a85e848455334aff6
 
 if args.visualize:
     gl_viewer = Viewer()
