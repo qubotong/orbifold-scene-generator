@@ -1,24 +1,49 @@
 <?xml version='1.0' encoding='utf-8'?>
 
 <scene version="0.5.0">
-<!--     <integrator type="opath">
-        <string name="otype" value="**"/>
-        <spectrum name="k1" value="0.7"/>
-        <spectrum name="k2" value="0.7"/>
+    <!--<integrator type="path"/>-->
+
+    <!--<sensor type="perspective">-->
+    <!--<float name="farClip" value="10000"/>-->
+    <!--<float name="focusDistance" value="000"/>-->
+    <!--<float name="fov" value="75"/>-->
+    <!--<string name="fovAxis" value="x"/>-->
+    <!--<float name="nearClip" value="100"/>-->
+    <!--<transform name="toWorld">-->
+    <!--<lookat target="208, 240, 190" origin="148, 499, 490" up="0.0, 1.0, 0.0"/>-->
+    <!--</transform>-->
+
+    <!--<sampler type="independent">-->
+    <!--<integer name="sampleCount" value="128"/>-->
+    <!--</sampler>-->
+
+    <!--<film type="hdrfilm">-->
+    <!--<integer name="height" value="512"/>-->
+    <!--<integer name="width" value="512"/>-->
+
+    <!--<rfilter type="gaussian"/>-->
+    <!--</film>-->
+    <!--</sensor>-->
+    <integrator type="opath">
+        <string name="otype" value="*2222"/>
+        <spectrum name="k1" value="0.5"/>
+        <spectrum name="k2" value="0.5"/>
+        <spectrum name="k3" value="0.5"/>
+        <spectrum name="k4" value="0.5"/>
         <spectrum name="eta1" value="0.1"/>
         <spectrum name="eta2" value="0.1"/>
-    </integrator> -->
-	
-	<integrator type="path"></integrator>	
+        <spectrum name="eta3" value="0.1"/>
+        <spectrum name="eta4" value="0.1"/>
+    </integrator>
 
     <sensor type="perspective">
         <float name="farClip" value="4800"/>
         <float name="focusDistance" value="1264.51"/>
         <float name="fov" value="90"/>
         <string name="fovAxis" value="x"/>
-        <float name="nearClip" value="100"/>
+        <float name="nearClip" value="1"/>
         <transform name="toWorld">
-            <lookat target="228.506, 340.574, 223.37" origin="228.465, 340.9, 3224.31" up="0.120059, 0.94014, -0.31894"/>
+            <lookat target="0.0, 0.0, 1.0" origin="0.0, 0.0, 0.0" up="0.0, 1.0, 0.0"/>
         </transform>
 
         <sampler type="independent">
@@ -26,10 +51,12 @@
         </sampler>
 
         <film type="hdrfilm">
-            <integer name="height" value="512"/>
-            <integer name="width" value="512"/>
-
-            <rfilter type="gaussian"/>
+            <integer name="width" value="1280"/>
+            <integer name="height" value="1280"/>
+            <string name="componentFormat" value="float32"/>
+            <rfilter type="gaussian">
+                <!--<float name="stddev" value="0.5"/>-->
+            </rfilter>
         </film>
     </sensor>
     <!--
@@ -89,24 +116,6 @@
             </bsdf>
         </shape>
 
-        <shape type="obj">
-            <string name="filename" value="meshes/cbox_redwall.obj"/>
-
-            <bsdf type="roughplastic">
-                <string name="distribution" value="ggx"/>
-                <srgb name="diffuseReflectance" value="#665555"/>
-            </bsdf>
-        </shape>
-
-        <shape type="obj">
-            <string name="filename" value="meshes/cbox_greenwall.obj"/>
-
-            <bsdf type="roughplastic">
-                <string name="distribution" value="ggx"/>
-                <srgb name="diffuseReflectance" value="#556655"/>
-            </bsdf>
-        </shape>
-
         <shape type="sphere">
             <point name="center" x="0" y="0" z="0"/>
             <float name="radius" value="1"/>
@@ -141,7 +150,7 @@
         <ref id="light"/>
 
         <emitter type="area">
-            <spectrum name="radiance" value="400:18.4, 500:18.4, 600:18.4, 700:18.4"/>
+            <spectrum name="radiance" value="120"/>
         </emitter>
     </shape>
 
